@@ -17,6 +17,9 @@ metadata:
   namespace: assign2
 spec:
   schedule: "0 */6 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
   jobTemplate:
     spec:
       template:
@@ -33,9 +36,24 @@ spec:
             - /bin/sh
             - -c
             - |
+              set -e
               mkdir -p /backup
               export PGPASSWORD="$POSTGRES_PASSWORD"
-              pg_dump -h db -U "$POSTGRES_USER" -d "$POSTGRES_DB" > /backup/votes.sql
+
+              TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+              DUMP_FILE="/backup/votes-${TIMESTAMP}.sql"
+
+              echo "Starting dump..."
+              pg_dump -h db -U "$POSTGRES_USER" -d "$POSTGRES_DB" > "$DUMP_FILE"
+
+              echo "Dump created: $DUMP_FILE"
+              ls -l "$DUMP_FILE"
+
+              echo "Running verification dump..."
+              pg_dump -h db -U "$POSTGRES_USER" -d "$POSTGRES_DB" > /tmp/verify.sql
+              ls -l /tmp/verify.sql
+
+              echo "Backup verification passed"
             env:
             - name: POSTGRES_USER
               valueFrom:
@@ -80,9 +98,10 @@ spec:
         - /bin/sh
         - -c
         - |
+          set -e
           export PGPASSWORD="$POSTGRES_PASSWORD"
-          apk add --no-cache sqlite >/dev/null 2>&1 || true
-          pg_dump -h db -U "$POSTGRES_USER" -d "$POSTGRES_DB" >/tmp/dump.sql
+          pg_dump -h db -U "$POSTGRES_USER" -d "$POSTGRES_DB" > /tmp/dump.sql
+          ls -l /tmp/dump.sql
           echo "dump generated"
         env:
         - name: POSTGRES_USER
