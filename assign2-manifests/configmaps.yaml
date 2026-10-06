@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-config
+  namespace: assign2
+data:
+  postgres.conf: |
+    listen_addresses = '*'
+    max_connections = 100
+    shared_buffers = 128MB
+    log_statement = 'all'
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redis-config
+  namespace: assign2
+data:
+  redis.conf: |
+    maxmemory 64mb
+    maxmemory-policy allkeys-lru
+    save 60 1
+    appendonly no

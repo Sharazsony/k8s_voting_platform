@@ -1,0 +1,159 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker
+  namespace: assign2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: worker
+  template:
+    metadata:
+      labels:
+        app: worker
+    spec:
+      serviceAccountName: worker-sa
+      automountServiceAccountToken: false
+      initContainers:
+      - name: wait-for-db
+        image: busybox:1.36
+        command: ["sh", "-c", "until nc -z db 5432; do echo waiting for db; sleep 3; done"]
+      - name: wait-for-redis
+        image: busybox:1.36
+        command: ["sh", "-c", "until nc -z redis 6379; do echo waiting for redis; sleep 3; done"]
+      containers:
+      - name: worker
+        image: dockersamples/examplevotingapp_worker
+        env:
+        - name: REDIS_HOST
+          value: redis
+        - name: POSTGRES_HOST
+          value: db
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: POSTGRES_USER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: POSTGRES_PASSWORD
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: POSTGRES_DB
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 300m
+            memory: 256Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: adminer
+  namespace: assign2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: adminer
+  template:
+    metadata:
+      labels:
+        app: adminer
+    spec:
+      automountServiceAccountToken: false
+      priorityClassName: adminer-priority
+      containers:
+      - name: adminer
+        image: adminer:4
+        ports:
+        - containerPort: 8080
+        env:
+        - name: ADMINER_DEFAULT_DB_DRIVER
+          value: pgsql
+        - name: ADMINER_DEFAULT_DB_HOST
+          value: db
+        - name: ADMINER_DEFAULT_DB_NAME
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: POSTGRES_DB
+        - name: ADMINER_DEFAULT_DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: POSTGRES_USER
+        - name: ADMINER_DEFAULT_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: POSTGRES_PASSWORD
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 200m
+            memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: adminer
+  namespace: assign2
+spec:
+  selector:
+    app: adminer
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-status
+  namespace: assign2
+spec:
+  selector:
+    app: nginx-status
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-status
+  namespace: assign2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx-status
+  template:
+    metadata:
+      labels:
+        app: nginx-status
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - name: nginx
+        image: nginx:1.27-alpine
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: 25m
+            memory: 32Mi
+          limits:
+            cpu: 100m
+            memory: 64Mi

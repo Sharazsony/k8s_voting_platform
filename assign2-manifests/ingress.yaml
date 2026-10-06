@@ -1,0 +1,48 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: assign2-traefik
+  namespace: assign2
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+    traefik.ingress.kubernetes.io/redirect-scheme: https
+    traefik.ingress.kubernetes.io/redirect-permanent: "true"
+spec:
+  ingressClassName: traefik
+  tls:
+  - hosts:
+    - vote.local
+    - result.local
+    - adminer.local
+    secretName: assign2-tls
+  rules:
+  - host: vote.local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: vote
+            port:
+              number: 80
+  - host: result.local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: result
+            port:
+              number: 80
+  - host: adminer.local
+    http:
+      paths:
+      - path: /adminer
+        pathType: Prefix
+        backend:
+          service:
+            name: adminer
+            port:
+              number: 8080
