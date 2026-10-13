@@ -25,7 +25,216 @@ The assignment also required careful attention to:
 
 ---
 
-## 2. Starting point: check the cluster before changing anything
+## 2. Project plan
+
+The work was broken into a controlled sequence so the cluster stayed stable while the application was deployed:
+
+1. Inspect the existing cluster and confirm the active ingress setup.
+2. Keep the current nginx ingress in place and add Traefik as a second ingress controller.
+3. Create the application namespace and required policies, quotas, and RBAC objects.
+4. Deploy the data layer: PostgreSQL and Redis.
+5. Deploy the frontend, backend, worker, and Adminer workloads.
+6. Configure ingress routes for the local hostnames.
+7. Run connectivity and health checks for networking, DNS, TLS, autoscaling, and storage.
+8. Validate the final application from browser and CLI tools.
+
+---
+
+## 3. Professional Helm delivery roadmap
+
+The next step is to package the assignment as a professional Helm deployment using a single umbrella release and clean subchart boundaries.
+
+### Target design
+
+We will create one Helm chart in a dedicated directory, for example:
+
+```text
+helm/
+└── assign2/
+    ├── Chart.yaml
+    ├── values.yaml
+    ├── templates/
+    │   ├── namespace.yaml
+    │   ├── certificates.yaml
+    │   └── NOTES.txt
+    ├── charts/
+    │   ├── data/
+    │   │   ├── Chart.yaml
+    │   │   └── values.yaml
+    │   ├── app/
+    │   │   ├── Chart.yaml
+    │   │   └── values.yaml
+    │   ├── ingress/
+    │   │   ├── Chart.yaml
+    │   │   └── values.yaml
+    │   └── security/
+    │       ├── Chart.yaml
+    │       └── values.yaml
+    └── README.md
+```
+
+### Recommended subchart structure
+
+- `data`: PostgreSQL and Redis
+- `app`: Vote, Result, Worker, and Adminer
+- `ingress`: Traefik + Ingress + TLS resources
+- `security`: NetworkPolicies, RBAC, Quotas, PDBs, HPA, priority classes
+
+This keeps a single release, but cleanly separates responsibilities and follows Helm best practices.
+
+### Best-practice rules for the chart
+
+- Use one umbrella chart as the top-level release.
+- Keep `Chart.yaml` dependencies explicit for each subchart.
+- Use `values.yaml` at the root for shared values and global overrides.
+- Use `{{ .Release.Namespace }}` instead of hard-coded namespaces.
+- Keep names deterministic and release-aware.
+- Put global configuration under `global:`.
+- Use `condition: enabled` or `tags` for optional components.
+- Avoid mixing logic for DB, app, ingress, and security in one template file.
+- Use `helm dependency update` before install.
+
+### Planned release flow
+
+1. Create the Helm chart folder and chart metadata.
+2. Add subcharts and chart dependencies.
+3. Define shared values for namespace, hostnames, TLS, and app settings.
+4. Add the namespace template and install into a dedicated namespace.
+5. Configure PostgreSQL, Redis, app workloads, ingress, and TLS with release-scoped names.
+6. Add quota, HPA, priority, PDB, and network policy logic.
+7. Validate with `helm lint`, `helm template`, and `helm upgrade --install`.
+8. Confirm application access using `curl` and hostname checks.
+
+### Planned install command
+
+```bash
+helm dependency update ./helm/assign2
+helm upgrade --install assign2 ./helm/assign2 \
+  --namespace assign2 \
+  --create-namespace
+```
+
+This approach is the professional model for a multi-component app: one release, clear dependency boundaries, reproducible deployment, and easier upgrades.
+
+---
+
+## 4. Architecture overview
+
+```mermaid
+flowchart LR
+    User[Browser / curl / /etc/hosts] --> Ingress[Traefik IngressClass: traefik]
+
+    Ingress --> Vote[Vote app
+    Service: vote
+    Host: vote.local]
+    Ingress --> Result[Result app
+    Service: result
+    Host: result.local]
+    Ingress --> Adminer[Adminer
+    Host: adminer.local/adminer]
+
+    Vote --> Redis[(Redis cache)]
+    Result --> Postgres[(PostgreSQL StatefulSet)]
+    Adminer --> Postgres
+
+    Worker[Worker process] --> Redis
+    Worker --> Postgres
+
+    Nginx[Existing nginx ingress
+    kept for safety] -. separate controller .-> Cluster[Kind Kubernetes cluster]
+```
+
+Simple architecture view:
+
+```text
+Browser / curl / /etc/hosts
+             |
+             v
+      Traefik (IngressClass: traefik)
+        /        |        \
+       /         |         \
+  vote.local  result.local  adminer.local
+       |           |             |
+       v           v             v
+     vote svc    result svc     adminer
+       |           |             |
+       +----> Redis <----+       |
+                    \           |
+                     \          v
+                     +----> PostgreSQL
+
+Worker --> Redis
+Worker --> PostgreSQL
+
+Existing nginx remains active as a separate ingress controller in the cluster.
+```
+
+### Traffic flow
+- Users access the app through Traefik on local hostnames.
+- `vote.local` sends traffic to the Vote service.
+- `result.local` sends traffic to the Result service.
+- `adminer.local` is routed to the Adminer dashboard.
+- The Vote and Result apps are isolated by network policies.
+- The Worker app reads from Redis and writes to PostgreSQL.
+
+---
+
+## 4. Test plan and validation checklist
+
+The assignment was not complete until both functional and network validation succeeded.
+
+### Application readiness checks
+
+```bash
+kubectl get ns
+kubectl get pods -A
+kubectl get all -n traefik
+kubectl get all -n assign2
+kubectl get ingress -n assign2
+kubectl get ingressclass -A
+```
+
+### Network and DNS checks
+
+```bash
+kubectl -n assign2 run vote-redis-check --rm -it --restart=Never --image=busybox:1.36 --labels=app=vote -- sh -c 'nc -vz redis 6379'
+kubectl -n assign2 run worker-db-check --rm -it --restart=Never --image=busybox:1.36 --labels=app=worker -- sh -c 'nc -vz db 5432'
+kubectl -n assign2 run dns-egress-check --rm -it --restart=Never --image=busybox:1.36 --labels=app=vote -- sh -c 'nslookup kubernetes.default.svc.cluster.local'
+```
+
+### Ingress and TLS checks
+
+```bash
+curl -vk https://vote.local --resolve vote.local:443:127.0.0.1
+curl -vk https://result.local --resolve result.local:443:127.0.0.1
+curl -vk https://adminer.local --resolve adminer.local:443:127.0.0.1
+kubectl get secret -n assign2 assign2-tls
+kubectl describe secret -n assign2 assign2-tls
+```
+
+### Security and resilience checks
+
+```bash
+kubectl get networkpolicy -n assign2 -o wide
+kubectl get hpa -n assign2
+kubectl get pdb -n assign2
+kubectl get quota -n assign2
+kubectl get pvc -n assign2
+```
+
+### Backup validation
+
+```bash
+kubectl -n assign2 get pods -l app=postgres-backup
+kubectl -n assign2 exec <pod-name> -- ls -l /backup
+kubectl exec -it postgres-restore -- psql -U postgres -d postgres -c 'SELECT count(*) FROM votes;'
+```
+
+These checks confirm that the application is reachable, database and cache access is allowed only as intended, ingress is routing correctly, and the platform remains resilient and secure.
+
+---
+
+## 5. Starting point: check the cluster before changing anything
 
 The first step was to understand what already existed in the cluster.
 
@@ -52,7 +261,7 @@ If we deleted nginx, we could break the current cluster. The safe option was to 
 
 ---
 
-## 3. The main design decision: keep nginx and add Traefik
+## 6. The main design decision: keep nginx and add Traefik
 
 The safe architecture was:
 - leave the already working nginx ingress alone
@@ -77,7 +286,7 @@ This confirmed:
 
 ---
 
-## 4. Add Traefik as a second controller
+## 7. Add Traefik as a second controller
 
 Because the project uses Kind, Helm is the easiest and cleanest method.
 
@@ -128,7 +337,7 @@ The problem was that the values file had the wrong schema for Traefik chart vers
 
 ---
 
-## 5. Verify Traefik is healthy
+## 8. Verify Traefik is healthy
 
 After installation, we checked the resources.
 
@@ -153,7 +362,7 @@ This proved that the second ingress controller was working and isolated from ngi
 
 ---
 
-## 6. Create the application namespace and core resources
+## 9. Create the application namespace and core resources
 
 The app resources were placed under namespace `assign2`.
 
@@ -197,7 +406,7 @@ These resources provide:
 
 ---
 
-## 7. Deploy the database and cache
+## 10. Deploy the database and cache
 
 ### PostgreSQL
 
@@ -227,7 +436,7 @@ This deployed the Redis service and pod properly.
 
 ---
 
-## 8. Deploy the application services
+## 11. Deploy the application services
 
 ### Vote app
 
@@ -272,7 +481,7 @@ This avoids worker startup before dependencies are ready.
 
 ---
 
-## 9. Expose the app through Traefik ingress
+## 12. Expose the app through Traefik ingress
 
 The ingress manifest was created in the assignment namespace.
 
@@ -341,7 +550,7 @@ This routes traffic based on the hostname and uses Traefik.
 
 ---
 
-## 10. Add TLS secret for HTTPS
+## 13. Add TLS secret for HTTPS
 
 The Ingress requires a TLS secret named `assign2-tls`.
 
@@ -360,7 +569,7 @@ This creates a self-signed certificate so HTTPS works locally for the project.
 
 ---
 
-## 11. Check /etc/hosts for local DNS
+## 14. Check /etc/hosts for local DNS
 
 The browser needs the hostnames to resolve locally.
 
@@ -392,7 +601,7 @@ This ensures the hostnames resolve on your local machine.
 
 ---
 
-## 12. Access the app locally
+## 15. Access the app locally
 
 The app is not reachable on port 80/443 because Docker is already using those ports on the machine.
 
@@ -433,7 +642,7 @@ These returned HTTP 200, which confirmed the application was reachable and healt
 
 ---
 
-## 13. The main troubleshooting issues we fixed
+## 16. The main troubleshooting issues we fixed
 
 ### Issue 1: nginx already existed and had to remain
 **Fix:** kept nginx untouched and installed Traefik separately.
@@ -458,7 +667,7 @@ These returned HTTP 200, which confirmed the application was reachable and healt
 
 ---
 
-## 14. What final state should look like
+## 17. What final state should look like
 
 When everything is correct, these should be running:
 
@@ -478,7 +687,7 @@ The app should load properly, and the self-signed certificate warning is expecte
 
 ---
 
-## 15. Final summary
+## 18. Final summary
 
 This assignment was solved in a safe, staged way:
 1. inspected the cluster before changing anything
@@ -494,7 +703,7 @@ This is the correct approach for a Kind cluster where another ingress controller
 
 ---
 
-## 16. Quick command cheat sheet
+## 19. Quick command cheat sheet
 
 ```bash
 # check cluster
@@ -538,7 +747,7 @@ curl -k -I --resolve adminer.local:8443:127.0.0.1 https://adminer.local:8443/adm
 
 ---
 
-## 17. Final note
+## 20. Final note
 
 The final goal was not only to deploy an application, but also to understand why there were conflicts and how to fix them in a real Kubernetes environment. The most important lessons were:
 - never remove a working ingress controller without need

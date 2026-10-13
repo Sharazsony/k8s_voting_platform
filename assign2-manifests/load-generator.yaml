@@ -1,0 +1,44 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: vote-load-generator
+  namespace: assign2
+spec:
+  backoffLimit: 0
+  template:
+    metadata:
+      labels:
+        app: vote-load
+    spec:
+      restartPolicy: Never
+      automountServiceAccountToken: false
+      containers:
+      - name: load
+        image: busybox:1.36
+        command:
+        - /bin/sh
+        - -c
+        - |
+          while true; do
+            burst=$(( ($(date +%s) % 5) + 6 ))
+            echo "burst: $burst"
+            for i in $(seq 1 "$burst"); do
+              (
+                wget -q -O- \
+                  --header="Host: vote.local" \
+                  http://traefik.traefik.svc.cluster.local/ >/dev/null 2>&1 || true
+              ) &
+            done
+            sleep 4
+
+            low=$(( ($(date +%s) % 5) + 1 ))
+            echo "low: $low"
+            for i in $(seq 1 "$low"); do
+              (
+                wget -q -O- \
+                  --header="Host: vote.local" \
+                  http://traefik.traefik.svc.cluster.local/ >/dev/null 2>&1 || true
+              ) &
+            done
+            sleep 2
+          done

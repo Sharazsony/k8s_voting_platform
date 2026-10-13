@@ -58,7 +58,10 @@ spec:
             - name: POSTGRES_USER
               value: postgres
             - name: POSTGRES_PASSWORD
-              value: postgres
+              valueFrom:
+                secretKeyRef:
+                  name: assign2-db-secret
+                  key: postgres-password
             - name: POSTGRES_DB
               value: votes
           volumeMounts:

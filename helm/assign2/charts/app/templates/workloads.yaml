@@ -118,7 +118,10 @@ spec:
             - name: POSTGRES_USER
               value: postgres
             - name: POSTGRES_PASSWORD
-              value: postgres
+              valueFrom:
+                secretKeyRef:
+                  name: assign2-db-secret
+                  key: postgres-password
           resources:
 {{ toYaml .Values.resources.result | indent 12 }}
 {{- end }}
@@ -181,7 +184,10 @@ spec:
             - name: POSTGRES_USER
               value: postgres
             - name: POSTGRES_PASSWORD
-              value: postgres
+              valueFrom:
+                secretKeyRef:
+                  name: assign2-db-secret
+                  key: postgres-password
             - name: POSTGRES_DB
               value: votes
           resources:
@@ -222,7 +228,10 @@ spec:
             - name: ADMINER_DEFAULT_DB_USER
               value: postgres
             - name: ADMINER_DEFAULT_DB_PASSWORD
-              value: postgres
+              valueFrom:
+                secretKeyRef:
+                  name: assign2-db-secret
+                  key: postgres-password
           resources:
 {{ toYaml .Values.resources.adminer | indent 12 }}
 ---

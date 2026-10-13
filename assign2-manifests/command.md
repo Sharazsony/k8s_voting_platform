@@ -88,3 +88,8 @@ kubectl -n assign2 run backup-viewer --rm -it --image=busybox \
 
 ls -l /backup
 cat /backup/votes-20261006-111301.sql | head
+
+kubectl exec postgres-restore -- psql -U postgres -d postgres -f /backup/votes-20261006-061501.sql
+kubectl exec -it postgres-restore -- psql -U postgres -d postgres -c '\dt'
+kubectl exec -it postgres-restore -- psql -U postgres -d postgres -c 'SELECT count(*) FROM votes;'
+kubectl exec -it postgres-restore -- psql -U postgres -d postgres -c 'SELECT * FROM votes LIMIT 10;'
