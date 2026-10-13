@@ -25,8 +25,6 @@ spec:
             - -c
             - |
               cp -a /usr/local/app/. /patched/
-              # patch jQuery http → https
-              sed -i 's|http://code.jquery.com|https://code.jquery.com|g' /patched/templates/index.html
               # patch hardcoded Redis host → read REDIS_HOST env var
               sed -i 's|Redis(host="redis"|Redis(host=os.getenv("REDIS_HOST","redis")|g' /patched/app.py
               echo "redis patch:" && grep "Redis(host" /patched/app.py
