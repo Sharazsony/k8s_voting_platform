@@ -1,0 +1,12 @@
+global:
+  environment: prod
+  domain: example.com
+  adminerEnabled: false
+
+# TODO owner: review and uncomment only values that truly differ from the chart defaults.
+# app:
+#   vote:
+#     replicaCount: 3
+# data:
+#   postgres:
+#     storage: 20Gi

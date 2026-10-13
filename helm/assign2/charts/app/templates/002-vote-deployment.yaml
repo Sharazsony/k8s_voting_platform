@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "assign2.resourceName" (dict "name" "vote" "global" .Values.global) }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: vote
+{{ include "assign2.labels" . | indent 4 }}
+spec:
+  replicas: {{ .Values.vote.replicaCount }}
+  selector:
+    matchLabels:
+      app: vote
+  template:
+    metadata:
+      labels:
+        app: vote
+    spec:
+      automountServiceAccountToken: false
+      initContainers:
+        - name: patch-jquery
+          image: {{ include "assign2.image" (dict "image" .Values.vote.image "global" .Values.global) }}
+          command:
+            - sh
+            - -c
+            - |
+              cp -a /usr/local/app/. /patched/
+              sed -i 's|http://code.jquery.com|https://code.jquery.com|g' /patched/templates/index.html
+              grep -n "jquery" /patched/templates/index.html || true
+          volumeMounts:
+            - name: app-patched
+              mountPath: /patched
+          resources:
+            requests:
+              cpu: 50m
+              memory: 32Mi
+            limits:
+              cpu: 100m
+              memory: 64Mi
+      containers:
+        - name: vote
+          image: {{ include "assign2.image" (dict "image" .Values.vote.image "global" .Values.global) }}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          env:
+            - name: REDIS_HOST
+              value: redis
+          volumeMounts:
+            - name: app-patched
+              mountPath: /usr/local/app
+          lifecycle:
+            preStop:
+              exec:
+                command: ["/bin/sh", "-c", "sleep 5"]
+          resources:
+{{ toYaml .Values.resources.vote | indent 12 }}
+      volumes:
+        - name: app-patched
+          emptyDir: {}
+      terminationGracePeriodSeconds: 30

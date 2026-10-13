@@ -1,0 +1,17 @@
+{{- if .Values.global.adminerEnabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "assign2.resourceName" (dict "name" "adminer" "global" .Values.global) }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: adminer
+{{ include "assign2.labels" . | indent 4 }}
+spec:
+  selector:
+    app: adminer
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+{{- end }}

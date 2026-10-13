@@ -1,9 +1,7 @@
 postgres:
-  enabled: true
   image:
     repository: postgres
     tag: 16-alpine
-    pullPolicy: IfNotPresent
   storage: 1Gi
   nodeSelector: {}
   priorityClassName: postgres-priority
@@ -16,11 +14,9 @@ postgres:
       memory: 384Mi
 
 redis:
-  enabled: true
   image:
     repository: redis
     tag: 7-alpine
-    pullPolicy: IfNotPresent
   resources:
     requests:
       cpu: 50m

@@ -1,11 +1,12 @@
-{{- if .Values.enabled }}
-{{- $hosts := .Values.hostNames | default (list "vote.local" "result.local" "adminer.local") -}}
+{{- $domain := required "set global.domain (use -f values-<env>.yaml)" .Values.global.domain -}}
 {{- $secretName := .Values.secretName | default "assign2-tls" -}}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: assign2-traefik
   namespace: {{ .Release.Namespace }}
+  labels:
+{{ include "assign2.labels" . | indent 4 }}
   annotations:
     traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
     traefik.ingress.kubernetes.io/redirect-scheme: https
@@ -14,37 +15,38 @@ spec:
   ingressClassName: traefik
   tls:
     - hosts:
-{{ toYaml $hosts | indent 8 }}
+{{ include "assign2.hosts" . | nindent 8 }}
       secretName: {{ $secretName }}
   rules:
-    - host: vote.local
+    - host: {{ printf "vote.%s" $domain }}
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: vote
+                name: {{ include "assign2.resourceName" (dict "name" "vote" "global" .Values.global) }}
                 port:
                   number: 80
-    - host: result.local
+    - host: {{ printf "result.%s" $domain }}
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: result
+                name: {{ include "assign2.resourceName" (dict "name" "result" "global" .Values.global) }}
                 port:
                   number: 80
-    - host: adminer.local
+{{- if .Values.global.adminerEnabled }}
+    - host: {{ printf "adminer.%s" $domain }}
       http:
         paths:
           - path: /adminer
             pathType: Prefix
             backend:
               service:
-                name: adminer
+                name: {{ include "assign2.resourceName" (dict "name" "adminer" "global" .Values.global) }}
                 port:
                   number: 8080
 {{- end }}

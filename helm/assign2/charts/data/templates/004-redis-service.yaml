@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "assign2.resourceName" (dict "name" "redis" "global" .Values.global) }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: redis
+{{ include "assign2.labels" . | indent 4 }}
+spec:
+  selector:
+    app: redis
+  ports:
+    - port: 6379
+      targetPort: 6379
+      name: redis

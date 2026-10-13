@@ -1,35 +1,7 @@
-global:
-  namespace: assign2-helm
-  appName: assign2
-  ingress:
-    className: traefik
-    hosts:
-      - vote.local
-      - result.local
-      - adminer.local
-    tls:
-      secretName: assign2-tls
-
 traefik:
   ingressClass:
-    enabled: true
     isDefaultClass: false
     name: traefik
-  service:
-    type: NodePort
-  ports:
-    web:
-      port: 80
-      expose:
-        default: true
-      exposedPort: 80
-      nodePort: 30080
-    websecure:
-      port: 443
-      expose:
-        default: true
-      exposedPort: 443
-      nodePort: 30443
   resources:
     requests:
       cpu: 50m
@@ -37,91 +9,4 @@ traefik:
     limits:
       cpu: 200m
       memory: 256Mi
-
-security:
-  enabled: true
-
-app:
-  vote:
-    enabled: true
-    replicaCount: 3
-    image:
-      repository: dockersamples/examplevotingapp_vote
-      tag: latest
-      pullPolicy: IfNotPresent
-  result:
-    enabled: true
-    replicaCount: 1
-    image:
-      repository: dockersamples/examplevotingapp_result
-      tag: latest
-      pullPolicy: IfNotPresent
-  worker:
-    enabled: true
-    replicaCount: 1
-    image:
-      repository: dockersamples/examplevotingapp_worker
-      tag: latest
-      pullPolicy: IfNotPresent
-  adminer:
-    enabled: true
-    replicaCount: 1
-    image:
-      repository: adminer
-      tag: "4"
-      pullPolicy: IfNotPresent
-  resources:
-    vote:
-      requests:
-        cpu: 100m
-        memory: 64Mi
-      limits:
-        cpu: 300m
-        memory: 256Mi
-    result:
-      requests:
-        cpu: 100m
-        memory: 64Mi
-      limits:
-        cpu: 300m
-        memory: 128Mi
-    worker:
-      requests:
-        cpu: 100m
-        memory: 128Mi
-      limits:
-        cpu: 300m
-        memory: 256Mi
-    adminer:
-      requests:
-        cpu: 50m
-        memory: 64Mi
-      limits:
-        cpu: 200m
-        memory: 128Mi
-
-ingress:
-  enabled: true
-  hostNames:
-    - vote.local
-    - result.local
-    - adminer.local
-
-redis:
-  enabled: true
-  image:
-    repository: redis
-    tag: 7-alpine
-    pullPolicy: IfNotPresent
-
-postgres:
-  enabled: true
-  image:
-    repository: postgres
-    tag: 16-alpine
-    pullPolicy: IfNotPresent
-  storage: 1Gi
-  nodeSelector:
-    disk: local
-  priorityClassName: postgres-priority
 
