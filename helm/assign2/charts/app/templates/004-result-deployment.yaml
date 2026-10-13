@@ -17,6 +17,26 @@ spec:
         app: result
     spec:
       automountServiceAccountToken: false
+      initContainers:
+        - name: patch-db-host
+          image: {{ include "assign2.image" (dict "image" .Values.result.image "global" .Values.global) }}
+          command:
+            - sh
+            - -c
+            - |
+              cp -a /usr/local/app/. /patched/
+              # Replace hardcoded @db/ with env var POSTGRES_HOST
+              sed -i "s|@db/postgres|@${POSTGRES_HOST}/postgres|g" /patched/server.js
+              echo "db host patch:" && grep "connectionString" /patched/server.js
+          env:
+            - name: POSTGRES_HOST
+              value: {{ include "assign2.resourceName" (dict "name" "db" "global" .Values.global) }}
+          volumeMounts:
+            - name: app-patched
+              mountPath: /patched
+          resources:
+            requests: { cpu: 50m, memory: 32Mi }
+            limits:   { cpu: 100m, memory: 64Mi }
       containers:
         - name: result
           image: {{ include "assign2.image" (dict "image" .Values.result.image "global" .Values.global) }}
@@ -33,5 +53,11 @@ spec:
                 secretKeyRef:
                   name: {{ include "assign2.resourceName" (dict "name" "assign2-db-secret" "global" .Values.global) }}
                   key: postgres-password
+          volumeMounts:
+            - name: app-patched
+              mountPath: /usr/local/app
           resources:
 {{ toYaml .Values.resources.result | indent 12 }}
+      volumes:
+        - name: app-patched
+          emptyDir: {}
