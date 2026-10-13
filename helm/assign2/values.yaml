@@ -44,7 +44,7 @@ security:
 app:
   vote:
     enabled: true
-    replicaCount: 2
+    replicaCount: 3
     image:
       repository: dockersamples/examplevotingapp_vote
       tag: latest
