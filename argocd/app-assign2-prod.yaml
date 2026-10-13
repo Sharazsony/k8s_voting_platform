@@ -7,7 +7,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/Sharazsony/k8s_voting_platform.git
-    targetRevision: prod
+    targetRevision: main
     path: helm/assign2
     helm:
       releaseName: assign2-prod
