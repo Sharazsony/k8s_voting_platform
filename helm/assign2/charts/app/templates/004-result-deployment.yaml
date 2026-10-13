@@ -25,12 +25,21 @@ spec:
             - -c
             - |
               cp -a /usr/local/app/. /patched/
-              # Replace hardcoded @db/ with env var POSTGRES_HOST
+              # patch hardcoded host: @db/ → @db-{env}/
               sed -i "s|@db/postgres|@${POSTGRES_HOST}/postgres|g" /patched/server.js
-              echo "db host patch:" && grep "connectionString" /patched/server.js
+              # patch hardcoded user/pass: postgres:postgres → real creds from env
+              sed -i "s|postgres://postgres:postgres@|postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@|g" /patched/server.js
+              echo "connection patch:" && grep "connectionString" /patched/server.js
           env:
             - name: POSTGRES_HOST
               value: {{ include "assign2.resourceName" (dict "name" "db" "global" .Values.global) }}
+            - name: POSTGRES_USER
+              value: postgres
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "assign2.resourceName" (dict "name" "assign2-db-secret" "global" .Values.global) }}
+                  key: postgres-password
           volumeMounts:
             - name: app-patched
               mountPath: /patched

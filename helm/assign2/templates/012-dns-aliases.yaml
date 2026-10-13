@@ -1,0 +1,27 @@
+{{- /*
+  DNS alias services — worker and result hardcode "db" and "redis" as hostnames.
+  These ExternalName services redirect those names to the real env-suffixed services.
+  e.g. "db" → "db-dev.assign2-helm.svc.cluster.local"
+*/}}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: db
+  namespace: {{ .Release.Namespace }}
+  labels:
+{{ include "assign2.labels" . | indent 4 }}
+spec:
+  type: ExternalName
+  externalName: {{ include "assign2.resourceName" (dict "name" "db" "global" .Values.global) }}.{{ .Release.Namespace }}.svc.cluster.local
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  namespace: {{ .Release.Namespace }}
+  labels:
+{{ include "assign2.labels" . | indent 4 }}
+spec:
+  type: ExternalName
+  externalName: {{ include "assign2.resourceName" (dict "name" "redis" "global" .Values.global) }}.{{ .Release.Namespace }}.svc.cluster.local
