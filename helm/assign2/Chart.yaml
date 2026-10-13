@@ -1,0 +1,22 @@
+apiVersion: v2
+name: assign2
+description: Umbrella Helm chart for the Assign2 voting application
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+dependencies:
+  - name: traefik
+    version: "36.3.0"
+    repository: "https://traefik.github.io/charts"
+  - name: data
+    version: 0.1.0
+    repository: "file://charts/data"
+  - name: app
+    version: 0.1.0
+    repository: "file://charts/app"
+  - name: ingress
+    version: 0.1.0
+    repository: "file://charts/ingress"
+  - name: security
+    version: 0.1.0
+    repository: "file://charts/security"

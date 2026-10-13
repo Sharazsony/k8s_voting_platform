@@ -1,0 +1,20 @@
+enabled: true
+rbac:
+  enabled: true
+networkPolicies:
+  enabled: true
+priorityClasses:
+  postgres:
+    name: postgres-priority
+    value: 1000000
+    description: Critical database workload
+  adminer:
+    name: adminer-priority
+    value: 50000
+    description: Adminer workload
+quota:
+  enabled: true
+pdb:
+  enabled: true
+hpa:
+  enabled: true

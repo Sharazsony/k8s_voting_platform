@@ -1,0 +1,6 @@
+enabled: true
+hostNames:
+  - vote.local
+  - result.local
+  - adminer.local
+secretName: assign2-tls

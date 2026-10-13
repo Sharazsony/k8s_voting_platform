@@ -1,0 +1,18 @@
+dependencies:
+- name: traefik
+  repository: https://traefik.github.io/charts
+  version: 36.3.0
+- name: data
+  repository: file://charts/data
+  version: 0.1.0
+- name: app
+  repository: file://charts/app
+  version: 0.1.0
+- name: ingress
+  repository: file://charts/ingress
+  version: 0.1.0
+- name: security
+  repository: file://charts/security
+  version: 0.1.0
+digest: sha256:d6fbd72cbec74337c41000e4d5a144de23ed31fd3e334c21418603afffd85191
+generated: "2026-10-13T10:35:45.804562801+05:00"
