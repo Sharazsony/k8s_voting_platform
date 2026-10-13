@@ -1,5 +1,4 @@
 postgres:
-  enabled: true
   image:
     repository: postgres
     tag: 16-alpine
@@ -16,7 +15,6 @@ postgres:
       memory: 384Mi
 
 redis:
-  enabled: true
   image:
     repository: redis
     tag: 7-alpine

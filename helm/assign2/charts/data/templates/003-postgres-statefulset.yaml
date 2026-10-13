@@ -1,35 +1,11 @@
-{{- if .Values.postgres.enabled }}
-apiVersion: v1
-kind: Service
-metadata:
-  name: db
-  namespace: {{ .Release.Namespace }}
-  labels:
-    app: postgres
-spec:
-  clusterIP: None
-  selector:
-    app: postgres
-  ports:
-    - port: 5432
-      name: postgres
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: postgres-config
-  namespace: {{ .Release.Namespace }}
-data:
-  postgres.conf: |
-    listen_addresses = '*'
-    port = 5432
-    max_connections = 200
----
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: postgres
   namespace: {{ .Release.Namespace }}
+  labels:
+    app: postgres
+{{ include "assign2.labels" . | indent 4 }}
 spec:
   serviceName: db
   replicas: 1
@@ -49,7 +25,7 @@ spec:
       automountServiceAccountToken: false
       containers:
         - name: postgres
-          image: "{{ .Values.postgres.image.repository }}:{{ .Values.postgres.image.tag }}"
+          image: {{ include "assign2.image" (dict "image" .Values.postgres.image "global" .Values.global) | quote }}
           imagePullPolicy: {{ .Values.postgres.image.pullPolicy }}
           ports:
             - containerPort: 5432
@@ -97,4 +73,3 @@ spec:
         resources:
           requests:
             storage: {{ .Values.postgres.storage }}
-{{- end }}

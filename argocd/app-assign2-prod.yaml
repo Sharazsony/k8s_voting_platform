@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: assign2-prod
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/Sharazsony/k8s_voting_platform.git
+    targetRevision: prod
+    path: helm/assign2
+    helm:
+      releaseName: assign2-prod
+      valueFiles:
+        - values-prod.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: assign2-prod
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      jsonPointers:
+        - /spec/replicas

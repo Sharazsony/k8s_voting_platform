@@ -1,0 +1,39 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-traefik-egress
+  namespace: {{ .Release.Namespace }}
+  labels:
+{{ include "assign2.labels" . | indent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: traefik
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app: vote
+        - podSelector:
+            matchLabels:
+              app: result
+      ports:
+        - port: 80
+          protocol: TCP
+{{- if .Values.global.adminerEnabled }}
+    - to:
+        - podSelector:
+            matchLabels:
+              app: adminer
+      ports:
+        - port: 8080
+          protocol: TCP
+{{- end }}
+    # Traefik must reach the Kubernetes API to watch Ingress objects
+    - ports:
+        - port: 6443
+          protocol: TCP
+        - port: 443
+          protocol: TCP

@@ -1,0 +1,44 @@
+{{- if .Values.global.adminerEnabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: adminer
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: adminer
+{{ include "assign2.labels" . | indent 4 }}
+spec:
+  replicas: {{ .Values.adminer.replicaCount }}
+  selector:
+    matchLabels:
+      app: adminer
+  template:
+    metadata:
+      labels:
+        app: adminer
+    spec:
+      automountServiceAccountToken: false
+      priorityClassName: adminer-priority
+      containers:
+        - name: adminer
+          image: {{ include "assign2.image" (dict "image" .Values.adminer.image "global" .Values.global) }}
+          imagePullPolicy: {{ .Values.adminer.image.pullPolicy }}
+          ports:
+            - containerPort: 8080
+          env:
+            - name: ADMINER_DEFAULT_DB_DRIVER
+              value: pgsql
+            - name: ADMINER_DEFAULT_DB_HOST
+              value: db
+            - name: ADMINER_DEFAULT_DB_NAME
+              value: votes
+            - name: ADMINER_DEFAULT_DB_USER
+              value: postgres
+            - name: ADMINER_DEFAULT_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: assign2-db-secret
+                  key: postgres-password
+          resources:
+{{ toYaml .Values.resources.adminer | indent 12 }}
+{{- end }}

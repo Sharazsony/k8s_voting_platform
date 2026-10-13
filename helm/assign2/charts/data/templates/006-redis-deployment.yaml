@@ -1,35 +1,11 @@
-{{- if .Values.redis.enabled }}
-apiVersion: v1
-kind: Service
-metadata:
-  name: redis
-  namespace: {{ .Release.Namespace }}
-  labels:
-    app: redis
-spec:
-  selector:
-    app: redis
-  ports:
-    - port: 6379
-      targetPort: 6379
-      name: redis
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: redis-config
-  namespace: {{ .Release.Namespace }}
-data:
-  redis.conf: |
-    bind 0.0.0.0
-    protected-mode no
-    port 6379
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: redis
   namespace: {{ .Release.Namespace }}
+  labels:
+    app: redis
+{{ include "assign2.labels" . | indent 4 }}
 spec:
   replicas: 1
   selector:
@@ -43,7 +19,7 @@ spec:
       automountServiceAccountToken: false
       containers:
         - name: redis
-          image: "{{ .Values.redis.image.repository }}:{{ .Values.redis.image.tag }}"
+          image: {{ include "assign2.image" (dict "image" .Values.redis.image "global" .Values.global) | quote }}
           imagePullPolicy: {{ .Values.redis.image.pullPolicy }}
           command: ["redis-server", "/etc/redis/redis.conf"]
           ports:
@@ -57,4 +33,3 @@ spec:
         - name: config
           configMap:
             name: redis-config
-{{- end }}
