@@ -45,7 +45,7 @@ spec:
             - containerPort: 80
           env:
             - name: REDIS_HOST
-              value: redis
+              value: {{ include "assign2.resourceName" (dict "name" "redis" "global" .Values.global) }}
           volumeMounts:
             - name: app-patched
               mountPath: /usr/local/app

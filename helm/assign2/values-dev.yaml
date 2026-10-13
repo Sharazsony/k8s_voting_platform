@@ -1,25 +1,15 @@
+# DEV — overrides only what differs from values.yaml
 global:
   environment: dev
   domain: local
   adminerEnabled: true
-  # SealedSecrets OFF — secrets come from OpenBao via ESO
-  sealedSecrets:
-    enabled: false
-  # ExternalSecrets ON — ESO creates secrets from OpenBao paths:
-  #   secret/assign2/dev/db  → assign2-db-secret-dev
-  #   secret/assign2/dev/tls → assign2-tls-dev
   externalSecrets:
     enabled: true
 
-# No sealedSecrets block here — sensitive data lives in OpenBao only
-sealedSecrets:
-  enabled: false
-
-data:
-  postgres:
-    nodeSelector: {}   # KinD has one node, no nodeSelector needed
-
-ingress:
-  envoyGateway:
-    gatewayClassName: eg
-    listenerPort: 80
+app:
+  vote:
+    replicaCount: 2
+  result:
+    replicaCount: 1
+  worker:
+    replicaCount: 1

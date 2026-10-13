@@ -1,21 +1,15 @@
+# PROD — overrides only what differs from values.yaml
 global:
   environment: prod
   domain: example.com
-  adminerEnabled: false
-  # SealedSecrets OFF — secrets come from OpenBao via ESO
-  sealedSecrets:
-    enabled: false
-  # ExternalSecrets ON — ESO creates secrets from OpenBao paths:
-  #   secret/assign2/prod/db  → assign2-db-secret-prod
-  #   secret/assign2/prod/tls → assign2-tls-prod
+  adminerEnabled: false    # no DB admin UI in prod
   externalSecrets:
     enabled: true
 
-# No sealedSecrets block here — sensitive data lives in OpenBao only
-sealedSecrets:
-  enabled: false
-
-ingress:
-  envoyGateway:
-    gatewayClassName: eg
-    listenerPort: 80
+app:
+  vote:
+    replicaCount: 5        # higher traffic in prod
+  result:
+    replicaCount: 2
+  worker:
+    replicaCount: 2

@@ -1,3 +1,4 @@
+# Postgres and Redis defaults
 postgres:
   image:
     repository: postgres
@@ -6,21 +7,13 @@ postgres:
   nodeSelector: {}
   priorityClassName: postgres-priority
   resources:
-    requests:
-      cpu: 50m
-      memory: 128Mi
-    limits:
-      cpu: 250m
-      memory: 384Mi
+    requests: { cpu: 50m,  memory: 128Mi }
+    limits:   { cpu: 250m, memory: 384Mi }
 
 redis:
   image:
     repository: redis
     tag: 7-alpine
   resources:
-    requests:
-      cpu: 50m
-      memory: 64Mi
-    limits:
-      cpu: 200m
-      memory: 128Mi
+    requests: { cpu: 50m,  memory: 64Mi }
+    limits:   { cpu: 200m, memory: 128Mi }

@@ -1,16 +1,21 @@
-environment: dev
-
-# SealedSecrets disabled — replaced by OpenBao + External Secrets Operator
-sealedSecrets:
-  enabled: false
-
+# Base defaults — override only what differs in values-{env}.yaml
 global:
-  sealedSecrets:
-    enabled: false
-  # ExternalSecrets enabled — ESO pulls secrets from OpenBao
+  environment: dev
+  domain: local
+  adminerEnabled: true
   externalSecrets:
-    enabled: false   # overridden per-env in values-<env>.yaml
+    enabled: true
 
+# App replica counts — tune per env
+app:
+  vote:
+    replicaCount: 2
+  result:
+    replicaCount: 1
+  worker:
+    replicaCount: 1
+
+# Ingress
 ingress:
   envoyGateway:
     gatewayClassName: eg

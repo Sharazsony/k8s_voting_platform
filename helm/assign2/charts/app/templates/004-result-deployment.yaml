@@ -25,7 +25,7 @@ spec:
             - containerPort: 80
           env:
             - name: POSTGRES_HOST
-              value: db
+              value: {{ include "assign2.resourceName" (dict "name" "db" "global" .Values.global) }}
             - name: POSTGRES_USER
               value: postgres
             - name: POSTGRES_PASSWORD

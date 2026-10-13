@@ -1,1 +1,3 @@
-secretName: assign2-tls
+envoyGateway:
+  gatewayClassName: eg
+  listenerPort: 80

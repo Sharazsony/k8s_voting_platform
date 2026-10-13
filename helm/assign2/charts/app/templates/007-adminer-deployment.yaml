@@ -29,7 +29,7 @@ spec:
             - name: ADMINER_DEFAULT_DB_DRIVER
               value: pgsql
             - name: ADMINER_DEFAULT_DB_HOST
-              value: db
+              value: {{ include "assign2.resourceName" (dict "name" "db" "global" .Values.global) }}
             - name: ADMINER_DEFAULT_DB_NAME
               value: votes
             - name: ADMINER_DEFAULT_DB_USER

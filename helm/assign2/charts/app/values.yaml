@@ -1,50 +1,39 @@
+# Default replica counts and images — override via parent values-{env}.yaml
 vote:
-  replicaCount: 3
+  replicaCount: 2
   image:
     repository: dockersamples/examplevotingapp_vote
     tag: latest
+
 result:
   replicaCount: 1
   image:
     repository: dockersamples/examplevotingapp_result
     tag: latest
+
 worker:
   replicaCount: 1
   image:
     repository: dockersamples/examplevotingapp_worker
     tag: latest
+
 adminer:
   replicaCount: 1
   priorityClassName: adminer-priority
   image:
     repository: adminer
     tag: "4"
+
 resources:
   vote:
-    requests:
-      cpu: 100m
-      memory: 64Mi
-    limits:
-      cpu: 300m
-      memory: 256Mi
+    requests: { cpu: 100m, memory: 64Mi }
+    limits:   { cpu: 300m, memory: 256Mi }
   result:
-    requests:
-      cpu: 100m
-      memory: 64Mi
-    limits:
-      cpu: 300m
-      memory: 128Mi
+    requests: { cpu: 100m, memory: 64Mi }
+    limits:   { cpu: 300m, memory: 128Mi }
   worker:
-    requests:
-      cpu: 100m
-      memory: 128Mi
-    limits:
-      cpu: 300m
-      memory: 256Mi
+    requests: { cpu: 100m, memory: 128Mi }
+    limits:   { cpu: 300m, memory: 256Mi }
   adminer:
-    requests:
-      cpu: 50m
-      memory: 64Mi
-    limits:
-      cpu: 200m
-      memory: 128Mi
+    requests: { cpu: 50m, memory: 64Mi }
+    limits:   { cpu: 200m, memory: 128Mi }
