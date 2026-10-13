@@ -43,7 +43,7 @@ security:
 
 app:
   vote:
-    enabled: false
+    enabled: true
     replicaCount: 3
     image:
       repository: dockersamples/examplevotingapp_vote
