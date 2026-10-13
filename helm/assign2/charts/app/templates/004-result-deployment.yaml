@@ -31,7 +31,7 @@ spec:
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: assign2-db-secret
+                  name: {{ include "assign2.resourceName" (dict "name" "assign2-db-secret" "global" .Values.global) }}
                   key: postgres-password
           resources:
 {{ toYaml .Values.resources.result | indent 12 }}

@@ -1,6 +1,6 @@
 apiVersion: v2
 name: ingress
-description: Ingress and TLS configuration for Assign2
+description: Envoy Gateway routing configuration for Assign2
 type: application
 version: 0.1.0
 appVersion: "1.0.0"

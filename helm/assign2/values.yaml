@@ -1,12 +1,17 @@
-traefik:
-  ingressClass:
-    isDefaultClass: false
-    name: traefik
-  resources:
-    requests:
-      cpu: 50m
-      memory: 64Mi
-    limits:
-      cpu: 200m
-      memory: 256Mi
+environment: dev
 
+# SealedSecrets disabled — replaced by OpenBao + External Secrets Operator
+sealedSecrets:
+  enabled: false
+
+global:
+  sealedSecrets:
+    enabled: false
+  # ExternalSecrets enabled — ESO pulls secrets from OpenBao
+  externalSecrets:
+    enabled: false   # overridden per-env in values-<env>.yaml
+
+ingress:
+  envoyGateway:
+    gatewayClassName: eg
+    listenerPort: 80

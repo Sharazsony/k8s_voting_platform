@@ -1,52 +1,90 @@
 {{- $domain := required "set global.domain (use -f values-<env>.yaml)" .Values.global.domain -}}
-{{- $secretName := .Values.secretName | default "assign2-tls" -}}
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+{{- $gatewayName := printf "%s-gateway" .Release.Name -}}
+{{- $gatewayClassName := .Values.envoyGateway.gatewayClassName | default "eg" -}}
+{{- $listenerPort := .Values.envoyGateway.listenerPort | default 80 -}}
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
 metadata:
-  name: assign2-traefik
+  name: {{ $gatewayName }}
   namespace: {{ .Release.Namespace }}
   labels:
 {{ include "assign2.labels" . | indent 4 }}
-  annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
-    traefik.ingress.kubernetes.io/redirect-scheme: https
-    traefik.ingress.kubernetes.io/redirect-permanent: "true"
 spec:
-  ingressClassName: traefik
-  tls:
-    - hosts:
-{{ include "assign2.hosts" . | nindent 8 }}
-      secretName: {{ $secretName }}
+  gatewayClassName: {{ $gatewayClassName }}
+  listeners:
+    - name: http
+      port: {{ $listenerPort }}
+      protocol: HTTP
+      hostname: "*.{{ $domain }}"
+      allowedRoutes:
+        namespaces:
+          from: Same
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ include "assign2.resourceName" (dict "name" "vote-route" "global" .Values.global) }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+{{ include "assign2.labels" . | indent 4 }}
+spec:
+  parentRefs:
+    - name: {{ $gatewayName }}
+      sectionName: http
+  hostnames:
+    - {{ printf "vote.%s" $domain | quote }}
   rules:
-    - host: {{ printf "vote.%s" $domain }}
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: {{ include "assign2.resourceName" (dict "name" "vote" "global" .Values.global) }}
-                port:
-                  number: 80
-    - host: {{ printf "result.%s" $domain }}
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: {{ include "assign2.resourceName" (dict "name" "result" "global" .Values.global) }}
-                port:
-                  number: 80
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: {{ include "assign2.resourceName" (dict "name" "vote" "global" .Values.global) }}
+          port: 80
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ include "assign2.resourceName" (dict "name" "result-route" "global" .Values.global) }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+{{ include "assign2.labels" . | indent 4 }}
+spec:
+  parentRefs:
+    - name: {{ $gatewayName }}
+      sectionName: http
+  hostnames:
+    - {{ printf "result.%s" $domain | quote }}
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: {{ include "assign2.resourceName" (dict "name" "result" "global" .Values.global) }}
+          port: 80
 {{- if .Values.global.adminerEnabled }}
-    - host: {{ printf "adminer.%s" $domain }}
-      http:
-        paths:
-          - path: /adminer
-            pathType: Prefix
-            backend:
-              service:
-                name: {{ include "assign2.resourceName" (dict "name" "adminer" "global" .Values.global) }}
-                port:
-                  number: 8080
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ include "assign2.resourceName" (dict "name" "adminer-route" "global" .Values.global) }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+{{ include "assign2.labels" . | indent 4 }}
+spec:
+  parentRefs:
+    - name: {{ $gatewayName }}
+      sectionName: http
+  hostnames:
+    - {{ printf "adminer.%s" $domain | quote }}
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /adminer
+      backendRefs:
+        - name: {{ include "assign2.resourceName" (dict "name" "adminer" "global" .Values.global) }}
+          port: 8080
 {{- end }}

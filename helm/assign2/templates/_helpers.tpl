@@ -4,7 +4,7 @@
 
 {{- define "assign2.resourceName" -}}
 {{- $name := .name -}}
-{{- if and .global.sharedCluster .global.environment -}}
+{{- if .global.environment -}}
 {{ printf "%s-%s" $name .global.environment }}
 {{- else -}}
 {{ $name }}

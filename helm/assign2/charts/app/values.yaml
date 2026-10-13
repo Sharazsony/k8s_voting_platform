@@ -15,6 +15,7 @@ worker:
     tag: latest
 adminer:
   replicaCount: 1
+  priorityClassName: adminer-priority
   image:
     repository: adminer
     tag: "4"

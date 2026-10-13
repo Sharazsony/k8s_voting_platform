@@ -1,12 +1,21 @@
 global:
   environment: stage
   domain: stage.example.com
-  adminerEnabled: false
+  adminerEnabled: true
+  # SealedSecrets OFF — secrets come from OpenBao via ESO
+  sealedSecrets:
+    enabled: false
+  # ExternalSecrets ON — ESO creates secrets from OpenBao paths:
+  #   secret/assign2/stage/db  → assign2-db-secret-stage
+  #   secret/assign2/stage/tls → assign2-tls-stage
+  externalSecrets:
+    enabled: true
 
-# TODO owner: review and uncomment only values that truly differ from the chart defaults.
-# app:
-#   vote:
-#     replicaCount: 3
-# data:
-#   postgres:
-#     storage: 10Gi
+# No sealedSecrets block here — sensitive data lives in OpenBao only
+sealedSecrets:
+  enabled: false
+
+ingress:
+  envoyGateway:
+    gatewayClassName: eg
+    listenerPort: 80

@@ -21,7 +21,7 @@ spec:
       nodeSelector:
 {{ toYaml . | indent 8 }}
 {{- end }}
-      priorityClassName: {{ .Values.postgres.priorityClassName }}
+      priorityClassName: {{ include "assign2.resourceName" (dict "name" .Values.postgres.priorityClassName "global" .Values.global "clusterScoped" true) }}
       automountServiceAccountToken: false
       containers:
         - name: postgres
@@ -36,7 +36,7 @@ spec:
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: assign2-db-secret
+                  name: {{ include "assign2.resourceName" (dict "name" "assign2-db-secret" "global" .Values.global) }}
                   key: postgres-password
             - name: POSTGRES_DB
               value: votes
