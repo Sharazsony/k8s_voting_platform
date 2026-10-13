@@ -1,7 +1,7 @@
 apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
-  name: vote-pdb
+  name: {{ include "assign2.resourceName" (dict "name" "vote-pdb" "global" .Values.global) }}
   namespace: {{ .Release.Namespace }}
   labels:
 {{ include "assign2.labels" . | indent 4 }}

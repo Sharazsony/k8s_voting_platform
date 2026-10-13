@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: postgres
+  name: {{ include "assign2.resourceName" (dict "name" "postgres" "global" .Values.global) }}
   namespace: {{ .Release.Namespace }}
   labels:
     app: postgres
@@ -26,7 +26,7 @@ spec:
       containers:
         - name: postgres
           image: {{ include "assign2.image" (dict "image" .Values.postgres.image "global" .Values.global) | quote }}
-          imagePullPolicy: {{ .Values.postgres.image.pullPolicy }}
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 5432
               name: postgres

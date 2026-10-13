@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: result
+  name: {{ include "assign2.resourceName" (dict "name" "result" "global" .Values.global) }}
   namespace: {{ .Release.Namespace }}
   labels:
     app: result
@@ -20,7 +20,7 @@ spec:
       containers:
         - name: result
           image: {{ include "assign2.image" (dict "image" .Values.result.image "global" .Values.global) }}
-          imagePullPolicy: {{ .Values.result.image.pullPolicy }}
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
           env:

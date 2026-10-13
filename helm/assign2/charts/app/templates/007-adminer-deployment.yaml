@@ -2,7 +2,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: adminer
+  name: {{ include "assign2.resourceName" (dict "name" "adminer" "global" .Values.global) }}
   namespace: {{ .Release.Namespace }}
   labels:
     app: adminer
@@ -22,7 +22,7 @@ spec:
       containers:
         - name: adminer
           image: {{ include "assign2.image" (dict "image" .Values.adminer.image "global" .Values.global) }}
-          imagePullPolicy: {{ .Values.adminer.image.pullPolicy }}
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
           env:

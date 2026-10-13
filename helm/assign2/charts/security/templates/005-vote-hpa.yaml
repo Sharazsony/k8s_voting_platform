@@ -1,7 +1,7 @@
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: vote-hpa
+  name: {{ include "assign2.resourceName" (dict "name" "vote-hpa" "global" .Values.global) }}
   namespace: {{ .Release.Namespace }}
   labels:
 {{ include "assign2.labels" . | indent 4 }}
@@ -9,7 +9,7 @@ spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: vote
+    name: {{ include "assign2.resourceName" (dict "name" "vote" "global" .Values.global) }}
   minReplicas: 3
   maxReplicas: 5
   metrics:

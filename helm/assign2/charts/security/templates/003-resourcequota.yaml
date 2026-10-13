@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ResourceQuota
 metadata:
-  name: assign2-quota
+  name: {{ include "assign2.resourceName" (dict "name" "assign2-quota" "global" .Values.global) }}
   namespace: {{ .Release.Namespace }}
   labels:
 {{ include "assign2.labels" . | indent 4 }}

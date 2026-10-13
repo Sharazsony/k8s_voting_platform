@@ -3,25 +3,21 @@ vote:
   image:
     repository: dockersamples/examplevotingapp_vote
     tag: latest
-    pullPolicy: IfNotPresent
 result:
   replicaCount: 1
   image:
     repository: dockersamples/examplevotingapp_result
     tag: latest
-    pullPolicy: IfNotPresent
 worker:
   replicaCount: 1
   image:
     repository: dockersamples/examplevotingapp_worker
     tag: latest
-    pullPolicy: IfNotPresent
 adminer:
   replicaCount: 1
   image:
     repository: adminer
     tag: "4"
-    pullPolicy: IfNotPresent
 resources:
   vote:
     requests:

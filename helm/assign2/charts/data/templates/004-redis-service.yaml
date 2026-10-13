@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: redis
+  name: {{ include "assign2.resourceName" (dict "name" "redis" "global" .Values.global) }}
   namespace: {{ .Release.Namespace }}
   labels:
     app: redis

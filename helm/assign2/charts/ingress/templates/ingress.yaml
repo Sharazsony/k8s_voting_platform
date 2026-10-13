@@ -25,7 +25,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: vote
+                name: {{ include "assign2.resourceName" (dict "name" "vote" "global" .Values.global) }}
                 port:
                   number: 80
     - host: {{ printf "result.%s" $domain }}
@@ -35,7 +35,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: result
+                name: {{ include "assign2.resourceName" (dict "name" "result" "global" .Values.global) }}
                 port:
                   number: 80
 {{- if .Values.global.adminerEnabled }}
@@ -46,7 +46,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: adminer
+                name: {{ include "assign2.resourceName" (dict "name" "adminer" "global" .Values.global) }}
                 port:
                   number: 8080
 {{- end }}

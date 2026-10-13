@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: worker
+  name: {{ include "assign2.resourceName" (dict "name" "worker" "global" .Values.global) }}
   namespace: {{ .Release.Namespace }}
   labels:
     app: worker
@@ -42,7 +42,7 @@ spec:
       containers:
         - name: worker
           image: {{ include "assign2.image" (dict "image" .Values.worker.image "global" .Values.global) }}
-          imagePullPolicy: {{ .Values.worker.image.pullPolicy }}
+          imagePullPolicy: IfNotPresent
           env:
             - name: REDIS_HOST
               value: redis

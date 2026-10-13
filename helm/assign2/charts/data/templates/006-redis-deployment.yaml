@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: redis
+  name: {{ include "assign2.resourceName" (dict "name" "redis" "global" .Values.global) }}
   namespace: {{ .Release.Namespace }}
   labels:
     app: redis
@@ -20,7 +20,7 @@ spec:
       containers:
         - name: redis
           image: {{ include "assign2.image" (dict "image" .Values.redis.image "global" .Values.global) | quote }}
-          imagePullPolicy: {{ .Values.redis.image.pullPolicy }}
+          imagePullPolicy: IfNotPresent
           command: ["redis-server", "/etc/redis/redis.conf"]
           ports:
             - containerPort: 6379

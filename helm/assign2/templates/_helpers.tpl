@@ -2,6 +2,15 @@
 {{ required "set global.environment (use -f values-<env>.yaml)" .Values.global.environment }}
 {{- end -}}
 
+{{- define "assign2.resourceName" -}}
+{{- $name := .name -}}
+{{- if and .global.sharedCluster .global.environment -}}
+{{ printf "%s-%s" $name .global.environment }}
+{{- else -}}
+{{ $name }}
+{{- end -}}
+{{- end -}}
+
 {{- define "assign2.image" -}}
 {{- $registry := .global.imageRegistry | default "" -}}
 {{- if $registry }}{{ $registry }}/{{ end }}{{ .image.repository }}:{{ .image.tag }}
