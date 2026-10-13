@@ -15,10 +15,6 @@ kubeseal-*.tar.gz
 tls.key
 tls.crt
 
-# Sealed Secrets controller key backup (NEVER commit!)
-*key-backup.yaml
-sealed-secrets-key*
-pub-sealed-secrets.pem
 
 # Plain secrets (should never exist, but safe)
 *.plain.yaml
