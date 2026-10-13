@@ -16,7 +16,7 @@ spec:
       labels:
         app: worker
     spec:
-      serviceAccountName: worker-sa
+      serviceAccountName: {{ include "assign2.resourceName" (dict "name" "worker-sa" "global" .Values.global) }}
       automountServiceAccountToken: false
       initContainers:
         - name: wait-for-db
