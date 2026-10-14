@@ -31,9 +31,12 @@ spec:
             - name: ADMINER_DEFAULT_DB_HOST
               value: {{ include "assign2.resourceName" (dict "name" "db" "global" .Values.global) }}
             - name: ADMINER_DEFAULT_DB_NAME
-              value: votes
-            - name: ADMINER_DEFAULT_DB_USER
               value: postgres
+            - name: ADMINER_DEFAULT_DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "assign2.resourceName" (dict "name" "assign2-db-secret" "global" .Values.global) }}
+                  key: postgres-user
             - name: ADMINER_DEFAULT_DB_PASSWORD
               valueFrom:
                 secretKeyRef:

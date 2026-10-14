@@ -19,3 +19,11 @@ tls.crt
 # Plain secrets (should never exist, but safe)
 *.plain.yaml
 *-plain-secret.yaml
+
+# Local tooling (not part of the project)
+node_modules/
+package.json
+package-lock.json
+
+# OpenBao unseal key / root token — must never be committed
+openbao-init.json

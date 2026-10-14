@@ -61,13 +61,16 @@ spec:
             - name: POSTGRES_HOST
               value: {{ include "assign2.resourceName" (dict "name" "db" "global" .Values.global) }}
             - name: POSTGRES_USER
-              value: postgres
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "assign2.resourceName" (dict "name" "assign2-db-secret" "global" .Values.global) }}
+                  key: postgres-user
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: {{ include "assign2.resourceName" (dict "name" "assign2-db-secret" "global" .Values.global) }}
                   key: postgres-password
             - name: POSTGRES_DB
-              value: votes
+              value: postgres   # worker/result images hardcode the "postgres" database
           resources:
 {{ toYaml .Values.resources.worker | indent 12 }}

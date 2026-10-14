@@ -4,8 +4,7 @@ global:
   domain: dev.lab
   adminerEnabled: true
   externalSecrets:
-    enabled: false          # plain Secret for dev; set true when OpenBao is ready
-  dbPassword: "postgres"   # matches hardcoded app credential; replace when OpenBao is wired up
+    enabled: true           # DB creds from OpenBao (secret/assign2/dev/db) via External Secrets
 
 app:
   vote:
@@ -24,10 +23,10 @@ security:
     minAvailable: 1
   quota:
     requests:
-      cpu: "500m"
-      memory: 512Mi
+      cpu: "1"
+      memory: 1Gi
     limits:
-      cpu: "2"
-      memory: 2Gi
+      cpu: "4"
+      memory: 3Gi
     pvcs: "5"
     pods: "20"

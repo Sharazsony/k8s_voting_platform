@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: assign2
+  name: assign2-dev
   namespace: argocd
 spec:
   project: default
@@ -10,12 +10,12 @@ spec:
     targetRevision: main
     path: helm/assign2
     helm:
-      releaseName: assign2
+      releaseName: assign2-dev
       valueFiles:
         - values-dev.yaml
   destination:
     server: https://kubernetes.default.svc
-    namespace: assign2-helm
+    namespace: assign2-dev
   syncPolicy:
     automated:
       prune: true

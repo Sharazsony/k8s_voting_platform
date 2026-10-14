@@ -141,4 +141,4 @@ openssl req -x509 -newkey rsa:2048 -nodes -days 365 \
 
   Argocd:
   username: admin
-  password: LXWyqUZprzW7PxH0
+  password: kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d
