@@ -1,7 +1,7 @@
 # DEV — overrides only what differs from values.yaml
 global:
   environment: dev
-  domain: local
+  domain: dev.lab
   adminerEnabled: true
   externalSecrets:
     enabled: false          # plain Secret for dev; set true when OpenBao is ready

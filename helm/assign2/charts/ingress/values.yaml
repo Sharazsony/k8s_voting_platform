@@ -1,3 +1,4 @@
 envoyGateway:
   gatewayClassName: eg
   listenerPort: 80
+  useSharedGateway: true   # use shared-gateway in envoy-gateway-system (no per-release Gateway created)

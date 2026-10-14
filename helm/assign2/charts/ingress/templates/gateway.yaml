@@ -1,0 +1,24 @@
+{{- $useShared := default false .Values.envoyGateway.useSharedGateway -}}
+{{- if not $useShared }}
+{{- $domain := required "set global.domain" .Values.global.domain -}}
+{{- $gatewayClassName := .Values.envoyGateway.gatewayClassName | default "eg" -}}
+{{- $listenerPort := .Values.envoyGateway.listenerPort | default 80 -}}
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: {{ printf "%s-gateway" .Release.Name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+{{ include "assign2.labels" . | indent 4 }}
+spec:
+  gatewayClassName: {{ $gatewayClassName }}
+  listeners:
+    - name: http
+      port: {{ $listenerPort }}
+      protocol: HTTP
+      hostname: "*.{{ $domain }}"
+      allowedRoutes:
+        namespaces:
+          from: Same
+{{- end }}
