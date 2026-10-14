@@ -1,7 +1,7 @@
 # PROD — overrides only what differs from values.yaml
 global:
   environment: prod
-  domain: example.com
+  domain: prod.lab
   adminerEnabled: false    # no DB admin UI in prod
   externalSecrets:
     enabled: true
