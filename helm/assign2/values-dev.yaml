@@ -4,7 +4,8 @@ global:
   domain: local
   adminerEnabled: true
   externalSecrets:
-    enabled: true
+    enabled: false          # plain Secret for dev; set true when OpenBao is ready
+  dbPassword: "postgres"   # matches hardcoded app credential; replace when OpenBao is wired up
 
 app:
   vote:

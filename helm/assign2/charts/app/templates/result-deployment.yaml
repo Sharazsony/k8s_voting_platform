@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "assign2.resourceName" (dict "name" "result" "global" .Values.global) }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: result
+{{ include "assign2.labels" . | indent 4 }}
+spec:
+  replicas: {{ .Values.result.replicaCount }}
+  selector:
+    matchLabels:
+      app: result
+  template:
+    metadata:
+      labels:
+        app: result
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: result
+          image: {{ include "assign2.image" (dict "image" .Values.result.image "global" .Values.global) }}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          env:
+            - name: POSTGRES_HOST
+              value: {{ include "assign2.resourceName" (dict "name" "db" "global" .Values.global) }}
+            - name: POSTGRES_USER
+              value: postgres
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "assign2.resourceName" (dict "name" "assign2-db-secret" "global" .Values.global) }}
+                  key: postgres-password
+          resources:
+{{ toYaml .Values.resources.result | indent 12 }}
