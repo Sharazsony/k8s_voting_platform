@@ -10,12 +10,12 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: {{ include "assign2.resourceName" (dict "name" "vote" "global" .Values.global) }}
-  minReplicas: 3
-  maxReplicas: 5
+  minReplicas: {{ .Values.hpa.minReplicas }}
+  maxReplicas: {{ .Values.hpa.maxReplicas }}
   metrics:
     - type: Resource
       resource:
         name: cpu
         target:
           type: Utilization
-          averageUtilization: 70
+          averageUtilization: {{ .Values.hpa.cpuUtilization }}

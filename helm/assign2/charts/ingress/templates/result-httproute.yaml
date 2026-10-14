@@ -1,7 +1,4 @@
 {{- $domain := required "set global.domain" .Values.global.domain -}}
-{{- $useShared := default false .Values.envoyGateway.useSharedGateway -}}
-{{- $gatewayName := ternary "shared-gateway" (printf "%s-gateway" .Release.Name) $useShared -}}
-{{- $gatewayNamespace := ternary "envoy-gateway-system" .Release.Namespace $useShared -}}
 ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
@@ -9,19 +6,15 @@ metadata:
   name: {{ include "assign2.resourceName" (dict "name" "result-route" "global" .Values.global) }}
   namespace: {{ .Release.Namespace }}
   labels:
-{{ include "assign2.labels" . | indent 4 }}
+{{ include "assign2.labels" . | nindent 4 }}
 spec:
   parentRefs:
-    - name: {{ $gatewayName }}
-      namespace: {{ $gatewayNamespace }}
+    - name: shared-gateway
+      namespace: envoy-gateway-system
       sectionName: http
   hostnames:
     - {{ printf "result.%s" $domain | quote }}
   rules:
-    - matches:
-        - path:
-            type: PathPrefix
-            value: /
-      backendRefs:
+    - backendRefs:
         - name: {{ include "assign2.resourceName" (dict "name" "result" "global" .Values.global) }}
           port: 80

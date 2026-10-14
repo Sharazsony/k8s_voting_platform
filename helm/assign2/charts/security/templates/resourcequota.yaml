@@ -7,9 +7,9 @@ metadata:
 {{ include "assign2.labels" . | indent 4 }}
 spec:
   hard:
-    requests.cpu: "1"
-    requests.memory: 1Gi
-    limits.cpu: "4"
-    limits.memory: 4Gi
-    persistentvolumeclaims: "10"
-    pods: "30"
+    requests.cpu: {{ .Values.quota.requests.cpu | quote }}
+    requests.memory: {{ .Values.quota.requests.memory | quote }}
+    limits.cpu: {{ .Values.quota.limits.cpu | quote }}
+    limits.memory: {{ .Values.quota.limits.memory | quote }}
+    persistentvolumeclaims: {{ .Values.quota.pvcs | quote }}
+    pods: {{ .Values.quota.pods | quote }}

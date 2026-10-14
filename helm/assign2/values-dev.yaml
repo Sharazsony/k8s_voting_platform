@@ -14,3 +14,20 @@ app:
     replicaCount: 1
   worker:
     replicaCount: 1
+
+security:
+  hpa:
+    minReplicas: 2
+    maxReplicas: 4
+    cpuUtilization: 70
+  pdb:
+    minAvailable: 1
+  quota:
+    requests:
+      cpu: "500m"
+      memory: 512Mi
+    limits:
+      cpu: "2"
+      memory: 2Gi
+    pvcs: "5"
+    pods: "20"

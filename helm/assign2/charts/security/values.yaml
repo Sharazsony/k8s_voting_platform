@@ -5,3 +5,21 @@ priorityClasses:
   adminer:
     name: adminer-priority
     value: 50000
+
+hpa:
+  minReplicas: 3
+  maxReplicas: 5
+  cpuUtilization: 70
+
+pdb:
+  minAvailable: 1
+
+quota:
+  requests:
+    cpu: "1"
+    memory: 1Gi
+  limits:
+    cpu: "4"
+    memory: 4Gi
+  pvcs: "10"
+  pods: "30"
