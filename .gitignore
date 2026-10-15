@@ -1,24 +1,12 @@
-kubeseal
-kubeseal-*.tar.gz
-*.pem
-tls.key
-*key-backup.yaml
-*.plain.yaml
-# Kubeseal binary (large, not needed in repo)
-kubeseal
-kubeseal-*.tar.gz
-
 # Certificates and keys
 *.pem
 *.crt
 *.key
-tls.key
-tls.crt
-
 
 # Plain secrets (should never exist, but safe)
 *.plain.yaml
 *-plain-secret.yaml
+*key-backup.yaml
 
 # Local tooling (not part of the project)
 node_modules/

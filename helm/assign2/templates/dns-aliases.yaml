@@ -1,7 +1,7 @@
 {{- /*
   DNS alias services — worker and result hardcode "db" and "redis" as hostnames.
   These ExternalName services redirect those names to the real env-suffixed services.
-  e.g. "db" → "db-dev.assign2-helm.svc.cluster.local"
+  e.g. "db" → "db-dev.assign2-dev.svc.cluster.local"
 */}}
 ---
 apiVersion: v1

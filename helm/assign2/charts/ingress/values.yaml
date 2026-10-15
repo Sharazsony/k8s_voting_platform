@@ -1,4 +1,5 @@
-envoyGateway:
-  gatewayClassName: eg
-  listenerPort: 80
-  useSharedGateway: true   # use shared-gateway in envoy-gateway-system (no per-release Gateway created)
+# Shared Envoy Gateway that all HTTPRoutes attach to (created by platform/kind/gateway.yaml)
+gateway:
+  name: shared-gateway
+  namespace: envoy-gateway-system
+  sectionName: http

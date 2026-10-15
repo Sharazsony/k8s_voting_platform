@@ -20,7 +20,7 @@ spec:
       automountServiceAccountToken: false
       initContainers:
         - name: wait-for-db
-          image: busybox:1.36
+          image: {{ include "assign2.image" (dict "image" .Values.worker.initImage "global" .Values.global) }}
           command:
             - sh
             - -c
@@ -29,14 +29,9 @@ spec:
                 echo waiting for db; sleep 3
               done
           resources:
-            requests:
-              cpu: 20m
-              memory: 16Mi
-            limits:
-              cpu: 50m
-              memory: 32Mi
+{{ toYaml .Values.worker.initResources | indent 12 }}
         - name: wait-for-redis
-          image: busybox:1.36
+          image: {{ include "assign2.image" (dict "image" .Values.worker.initImage "global" .Values.global) }}
           command:
             - sh
             - -c
@@ -45,12 +40,7 @@ spec:
                 echo waiting for redis; sleep 3
               done
           resources:
-            requests:
-              cpu: 20m
-              memory: 16Mi
-            limits:
-              cpu: 50m
-              memory: 32Mi
+{{ toYaml .Values.worker.initResources | indent 12 }}
       containers:
         - name: worker
           image: {{ include "assign2.image" (dict "image" .Values.worker.image "global" .Values.global) }}

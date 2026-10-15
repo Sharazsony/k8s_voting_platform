@@ -18,7 +18,7 @@ spec:
         app: adminer
     spec:
       automountServiceAccountToken: false
-      priorityClassName: {{ include "assign2.resourceName" (dict "name" .Values.adminer.priorityClassName "global" .Values.global "clusterScoped" true) }}
+      priorityClassName: {{ include "assign2.resourceName" (dict "name" .Values.adminer.priorityClassName "global" .Values.global) }}
       containers:
         - name: adminer
           image: {{ include "assign2.image" (dict "image" .Values.adminer.image "global" .Values.global) }}

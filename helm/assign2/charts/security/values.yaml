@@ -2,9 +2,11 @@ priorityClasses:
   postgres:
     name: postgres-priority
     value: 1000000
+    description: "Postgres is scheduled before (and evicted after) app pods"
   adminer:
     name: adminer-priority
     value: 50000
+    description: "DB admin UI, first to be evicted under pressure"
 
 hpa:
   minReplicas: 3

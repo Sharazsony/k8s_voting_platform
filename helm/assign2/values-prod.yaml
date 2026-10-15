@@ -3,12 +3,8 @@ global:
   environment: prod
   domain: prod.lab
   adminerEnabled: false    # no DB admin UI in prod
-  externalSecrets:
-    enabled: true
 
 app:
-  vote:
-    replicaCount: 5        # higher traffic in prod
   result:
     replicaCount: 2
   worker:

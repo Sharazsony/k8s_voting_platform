@@ -21,7 +21,7 @@ spec:
       nodeSelector:
 {{ toYaml . | indent 8 }}
 {{- end }}
-      priorityClassName: {{ include "assign2.resourceName" (dict "name" .Values.postgres.priorityClassName "global" .Values.global "clusterScoped" true) }}
+      priorityClassName: {{ include "assign2.resourceName" (dict "name" .Values.postgres.priorityClassName "global" .Values.global) }}
       automountServiceAccountToken: false
       containers:
         - name: postgres

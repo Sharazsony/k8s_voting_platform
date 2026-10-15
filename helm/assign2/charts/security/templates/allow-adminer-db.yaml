@@ -1,0 +1,23 @@
+{{- if .Values.global.adminerEnabled }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-adminer-db
+  namespace: {{ .Release.Namespace }}
+  labels:
+{{ include "assign2.labels" . | indent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app: adminer
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app: postgres
+      ports:
+        - port: 5432
+          protocol: TCP
+{{- end }}

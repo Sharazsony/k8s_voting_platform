@@ -9,9 +9,9 @@ metadata:
 {{ include "assign2.labels" . | nindent 4 }}
 spec:
   parentRefs:
-    - name: shared-gateway
-      namespace: envoy-gateway-system
-      sectionName: http
+    - name: {{ .Values.gateway.name }}
+      namespace: {{ .Values.gateway.namespace }}
+      sectionName: {{ .Values.gateway.sectionName }}
   hostnames:
     - {{ printf "vote.%s" $domain | quote }}
   rules:

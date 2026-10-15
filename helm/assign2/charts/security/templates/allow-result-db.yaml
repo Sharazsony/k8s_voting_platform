@@ -1,17 +1,14 @@
-{{- if .Values.global.adminerEnabled }}
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: allow-adminer-result-db
+  name: allow-result-db
   namespace: {{ .Release.Namespace }}
   labels:
 {{ include "assign2.labels" . | indent 4 }}
 spec:
   podSelector:
-    matchExpressions:
-      - key: app
-        operator: In
-        values: [adminer, result]
+    matchLabels:
+      app: result
   policyTypes:
     - Egress
   egress:
@@ -22,4 +19,3 @@ spec:
       ports:
         - port: 5432
           protocol: TCP
-{{- end }}

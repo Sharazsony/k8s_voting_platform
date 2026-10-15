@@ -1,6 +1,5 @@
 # Default replica counts and images — override via parent values-{env}.yaml
 vote:
-  replicaCount: 1
   image:
     repository: dockersamples/examplevotingapp_vote
     tag: latest
@@ -16,6 +15,13 @@ worker:
   image:
     repository: dockersamples/examplevotingapp_worker
     tag: latest
+  # wait-for-db / wait-for-redis init containers
+  initImage:
+    repository: busybox
+    tag: "1.36"
+  initResources:
+    requests: { cpu: 20m, memory: 16Mi }
+    limits:   { cpu: 50m, memory: 32Mi }
 
 adminer:
   replicaCount: 1

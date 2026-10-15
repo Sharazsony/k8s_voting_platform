@@ -2,17 +2,6 @@
 global:
   environment: dev
   domain: dev.lab
-  adminerEnabled: true
-  externalSecrets:
-    enabled: true           # DB creds from OpenBao (secret/assign2/dev/db) via External Secrets
-
-app:
-  vote:
-    replicaCount: 2
-  result:
-    replicaCount: 1
-  worker:
-    replicaCount: 1
 
 security:
   hpa:
