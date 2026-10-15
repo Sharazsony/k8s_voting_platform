@@ -1,2 +1,0 @@
-{{- /* Shared-gateway mode: no per-release Gateway is created. */ -}}
-{{- /* The release routes attach to the existing Gateway in envoy-gateway-system. */ -}}
