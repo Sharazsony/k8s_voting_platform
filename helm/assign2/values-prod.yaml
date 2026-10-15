@@ -1,4 +1,5 @@
-# PROD — overrides only what differs from values.yaml
+# PROD — env-specific settings (same layout as dev/stage/prod)
+# DB creds: OpenBao secret/assign2/prod/db → ESO → Secret assign2-db-secret-prod
 global:
   environment: prod
   domain: prod.lab
@@ -11,7 +12,7 @@ app:
     replicaCount: 2
 
 security:
-  hpa:
+  hpa:                     # vote replicas are owned by the HPA
     minReplicas: 5
     maxReplicas: 10
     cpuUtilization: 60

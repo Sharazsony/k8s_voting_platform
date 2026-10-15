@@ -1,10 +1,18 @@
-# STAGE — overrides only what differs from values.yaml
+# STAGE — env-specific settings (same layout as dev/stage/prod)
+# DB creds: OpenBao secret/assign2/stage/db → ESO → Secret assign2-db-secret-stage
 global:
   environment: stage
   domain: stage.lab
+  adminerEnabled: true     # DB admin UI on adminer.stage.lab
+
+app:
+  result:
+    replicaCount: 1
+  worker:
+    replicaCount: 1
 
 security:
-  hpa:
+  hpa:                     # vote replicas are owned by the HPA
     minReplicas: 2
     maxReplicas: 6
     cpuUtilization: 65
