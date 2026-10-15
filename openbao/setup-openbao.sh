@@ -8,7 +8,7 @@ set -euo pipefail
 
 NS=openbao
 POD=openbao-0
-INIT_FILE="$HOME/openbao-init.json"
+INIT_FILE="${OPENBAO_INIT_FILE:-$HOME/openbao-init.json}"   # override per cluster, e.g. ~/openbao-init-oke.json
 bao()    { kubectl exec    -n "$NS" "$POD" -- env BAO_TOKEN="${ROOT_TOKEN:-}" bao "$@"; }
 bao_in() { kubectl exec -i -n "$NS" "$POD" -- env BAO_TOKEN="${ROOT_TOKEN:-}" bao "$@"; }   # reads stdin
 json() { python3 -c "import json,sys;print(json.load(open('$INIT_FILE'))$1)"; }
