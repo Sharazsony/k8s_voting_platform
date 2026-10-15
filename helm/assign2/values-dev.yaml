@@ -1,3 +1,4 @@
+
 # DEV — env-specific settings (same layout as dev/stage/prod)
 # DB creds: OpenBao secret/assign2/dev/db → ESO → Secret assign2-db-secret-dev
 global:
@@ -27,3 +28,4 @@ security:
       memory: 3Gi
     pvcs: "5"
     pods: "20"
+

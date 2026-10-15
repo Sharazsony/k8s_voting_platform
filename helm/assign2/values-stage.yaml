@@ -25,5 +25,5 @@ security:
     limits:
       cpu: "4"
       memory: 4Gi
-    pvcs: "10"
+    pvcs: "5"
     pods: "30"
